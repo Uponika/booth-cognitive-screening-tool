@@ -1,0 +1,14 @@
+openai
+dotenv
+pytz
+pyttsx3
+sounddevice
+scipy
+tempfile
+matplotlib
+pillow
+numpy
+requests
+flask
+opencv-python
+spacy
