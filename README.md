@@ -1,6 +1,4 @@
-# booth-cognitive-screening-tool
-
-# Cognitive Assessment Tool 🧠
+# Booth Cognitive Screening Tool 🧠
 
 ![Python](https://img.shields.io/badge/python-3.11-blue?logo=python)
 ![License](https://img.shields.io/badge/license-MIT-green)
