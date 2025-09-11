@@ -12,3 +12,7 @@ requests
 flask
 opencv-python
 spacy
+librosa
+praat-parselmouth
+wave
+PyMySQL
