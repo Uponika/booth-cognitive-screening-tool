@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speech Assessment Recorder</title>
+</head>
+<body>
+  <h1>🗣️ Speech Assessment Recorder</h1>
+  <select id="assessment">
+    <option value="Spontaneous Storytelling">Spontaneous Storytelling</option>
+    <option value="Procedural Description">Procedural Description</option>
+    <option value="Descriptive Task">Descriptive Task</option>
+  </select>
+
+  <form id="questionsForm">
+    <label><input type="radio" name="question" value="Tell me about a memorable trip."> Tell me about a memorable trip.</label><br>
+    <label><input type="radio" name="question" value="Describe a childhood memory."> Describe a childhood memory.</label>
+  </form>
+
+  <button id="startBtn">▶ Start Recording</button>
+  <button id="stopBtn" disabled>■ Stop</button>
+  <button id="saveBtn" disabled>⬆ Upload Recording</button>
+
+  <audio id="player" controls></audio>
+
+<script>
+let mediaRecorder, chunks = [], filename="", selectedAssessment="", selectedQuestion="";
+
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const saveBtn = document.getElementById("saveBtn");
+const player = document.getElementById("player");
+const assessmentEl = document.getElementById("assessment");
+const form = document.getElementById("questionsForm");
+
+startBtn.onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  chunks = [];
+
+  selectedAssessment = assessmentEl.value;
+  selectedQuestion = form.querySelector("input[name='question']:checked")?.value || "unspecified";
+
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(chunks, { type: "audio/webm" });
+    player.src = URL.createObjectURL(blob);
+    saveBtn.disabled = false;
+  };
+
+  mediaRecorder.start();
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+};
+
+stopBtn.onclick = () => {
+  mediaRecorder.stop();
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+};
+
+saveBtn.onclick = async () => {
+  const blob = new Blob(chunks, { type: "audio/webm" });
+  const formData = new FormData();
+  formData.append("file", blob, "temp.webm");
+  formData.append("assessment", selectedAssessment);
+  formData.append("question", selectedQuestion);
+
+  const res = await fetch("/upload-audio", { method: "POST", body: formData });
+  const data = await res.json();
+  alert("✅ Saved at " + data.path);
+};
+</script>
+</body>
+</html>
