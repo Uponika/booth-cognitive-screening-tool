@@ -6,7 +6,7 @@ import wave
 from openai import OpenAI
 
 # Initialize OpenAI client
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 # ---------------- Audio Recording Functions ----------------
 
