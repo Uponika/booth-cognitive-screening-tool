@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MCFT Module - Cognitive Screening</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --brand: #0d6efd;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f6ff 0%, #fff 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        }
+
+        .step-section {
+            display: none;
+        }
+
+        .step-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .img-obj {
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        canvas {
+            border: 2px dashed #0d6efd;
+            border-radius: 8px;
+            background: #fff;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .sequence-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.1s;
+        }
+
+        .sequence-btn.active {
+            transform: scale(0.95);
+            filter: brightness(1.2);
+            box-shadow: 0 0 20px currentColor;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-5">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a href="index.html" class="btn btn-outline-secondary">← Home</a>
+            <h2 class="mb-0 fw-bold text-primary">MCFT Cognitive Module</h2>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress mb-4" style="height: 10px;">
+            <div id="progressBar" class="progress-bar" role="progressbar" style="width: 25%"></div>
+        </div>
+
+        <div class="card p-4 p-md-5">
+
+            <!-- Task 1: Orientation -->
+            <div id="step1" class="step-section active">
+                <h3 class="mb-4">1. Orientation</h3>
+                <p class="text-muted mb-4">Please answer the following questions to the best of your ability.</p>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Which season is it now?</label>
+                    <input type="text" class="form-control" id="q_season" placeholder="e.g. Summer, Winter...">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Is it morning, afternoon, or evening?</label>
+                    <select class="form-select" id="q_time_day">
+                        <option value="">Select...</option>
+                        <option value="morning">Morning</option>
+                        <option value="afternoon">Afternoon</option>
+                        <option value="evening">Evening</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">What month comes after July?</label>
+                    <input type="text" class="form-control" id="q_month" placeholder="Enter month">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">From which direction does the sun rise?</label>
+                    <select class="form-select" id="q_sun">
+                        <option value="">Select...</option>
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary mt-3" onclick="nextStep(2)">Next: Attention & Memory ▶</button>
+            </div>
+
+            <!-- Task 2: Sequence Game -->
+            <div id="step2" class="step-section">
+                <h3 class="mb-4">2. Attention & Working Memory</h3>
+                <p class="mb-3">Watch the sequence of lights, then tap the buttons in the same order.</p>
+
+                <div class="text-center mb-4">
+                    <div class="d-flex justify-content-center gap-3 mb-3">
+                        <div id="btn-red" class="sequence-btn" style="background-color: #ef4444; color: #ef4444;"
+                            onclick="handleSeqInput('red')"></div>
+                        <div id="btn-blue" class="sequence-btn" style="background-color: #3b82f6; color: #3b82f6;"
+                            onclick="handleSeqInput('blue')"></div>
+                    </div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <div id="btn-green" class="sequence-btn" style="background-color: #22c55e; color: #22c55e;"
+                            onclick="handleSeqInput('green')"></div>
+                        <div id="btn-yellow" class="sequence-btn" style="background-color: #eab308; color: #eab308;"
+                            onclick="handleSeqInput('yellow')"></div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button id="startSeqBtn" class="btn btn-lg btn-dark mb-3" onclick="startSequenceGame()">▶ Start
+                        Sequence</button>
+                    <div id="seqStatus" class="fw-bold text-muted">Press Start to begin.</div>
+                </div>
+
+                <button class="btn btn-primary mt-4" id="btnNext2" disabled onclick="nextStep(3)">Next: Object Naming
+                    ▶</button>
+            </div>
+
+            <!-- Task 3: Object Naming -->
+            <div id="step3" class="step-section">
+                <h3 class="mb-4">3. Object Naming</h3>
+                <p class="text-muted mb-4">Please type the name of each object shown below.</p>
+
+                <div class="row g-4">
+                    <div class="col-md-4 text-center">
+                        <img src="../images/mcft_apple.png" class="img-obj mb-2" alt="Object 1">
+                        <input type="text" class="form-control" id="obj1_name" placeholder="What is this?">
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <img src="../images/mcft_bicycle.png" class="img-obj mb-2" alt="Object 2">
+                        <input type="text" class="form-control" id="obj2_name" placeholder="What is this?">
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <img src="../images/mcft_telephone.png" class="img-obj mb-2" alt="Object 3">
+                        <input type="text" class="form-control" id="obj3_name" placeholder="What is this?">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary mt-4" onclick="nextStep(4)">Next: Picture Description ▶</button>
+            </div>
+
+            <!-- Task 4: Picture Description & Copying -->
+            <div id="step4" class="step-section">
+                <h3 class="mb-4">4. Picture Description & Copying</h3>
+
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="p-3 bg-light rounded border text-center mb-3">
+                            <h5 class="fw-bold mb-3">Target Image</h5>
+                            <img src="../images/mcft_house_tree.png" class="img-fluid" alt="House and Tree"
+                                style="max-height: 300px;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Describe the image above in one sentence:</label>
+                            <textarea class="form-control" id="q_desc" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <h5 class="fw-bold mb-2">Copy the image here:</h5>
+                        <canvas id="drawingBoard" width="500" height="400"></canvas>
+                        <div class="d-flex gap-2 mt-2">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="clearCanvas()">Clear
+                                Canvas</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-success mt-4 w-100 py-3 fw-bold" onclick="finishTest()">✅ Submit Test</button>
+            </div>
+
+            <!-- Results -->
+            <div id="stepResults" class="step-section text-center">
+                <div class="display-1 text-success mb-3">✅</div>
+                <h2 class="mb-3">Test Completed</h2>
+                <p class="lead text-muted">Thank you for completing the MCFT module.</p>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Home</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        function nextStep(step) {
+            document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            document.getElementById('progressBar').style.width = (step * 25) + '%';
+            if (step === 4) initCanvas();
+        }
+
+        // --- MCFT Report Logic ---
+        function finishTest() {
+            // 1. Orientation Scoring
+            const season = (document.getElementById('q_season').value || '').toLowerCase();
+            const timeDay = document.getElementById('q_time_day').value;
+            const month = (document.getElementById('q_month').value || '').toLowerCase();
+            const sun = document.getElementById('q_sun').value;
+
+            let orientScore = 0;
+            if (['summer', 'winter', 'spring', 'fall', 'autumn'].some(s => season.includes(s))) orientScore++;
+            if (timeDay) orientScore++;
+            if (month === 'august') orientScore++;
+            if (sun === 'east') orientScore++;
+
+            // 2. Sequence (already tracked in logic, mocking result if skipped)
+            const seqScore = 4; // Mock perfect score for demo assumption
+
+            // 3. Object Naming
+            const o1 = (document.getElementById('obj1_name').value || '').toLowerCase();
+            const o2 = (document.getElementById('obj2_name').value || '').toLowerCase();
+            const o3 = (document.getElementById('obj3_name').value || '').toLowerCase();
+
+            let namingScore = 0;
+            if (o1.includes('apple') || o1.includes('fruit')) namingScore++;
+            if (o2.includes('bi') || o2.includes('cycle') || o2.includes('bike')) namingScore++;
+            if (o3.includes('phone') || o3.includes('call')) namingScore++;
+
+            // 4. Copying & Desc (Mock AI)
+            const copyScore = Math.floor(Math.random() * (10 - 7) + 7); // 7-10
+            const descScore = 5;
+
+            const total = orientScore + seqScore + namingScore + copyScore + descScore; // Max approx 26
+
+            const result = {
+                timestamp: new Date().toISOString(),
+                scores: {
+                    orientation: orientScore,
+                    sequence: seqScore,
+                    naming: namingScore,
+                    copying: copyScore,
+                    description: descScore,
+                    total: total
+                },
+                details: {
+                    season: season,
+                    month: month,
+                    objects: [o1, o2, o3]
+                }
+            };
+
+            // Save to Session Storage
+            sessionStorage.setItem('mcft_data', JSON.stringify(result));
+
+            // UI Feedback
+            const resDiv = document.getElementById('step4');
+            resDiv.innerHTML = `
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <h2 class="h4">Finalizing Assessment...</h2>
+                    <p class="text-muted">Compiling data from all modules.</p>
+                </div>
+            `;
+
+            // Redirect to Consolidated Report
+            setTimeout(() => {
+                window.location.href = 'report.html';
+            }, 2000);
+        }
+
+        // --- Sequence Game Logic ---
+        let sequence = [];
+        let playerSeq = [];
+        let allowInput = false;
+
+        function startSequenceGame() {
+            sequence = [];
+            playerSeq = [];
+            document.getElementById('startSeqBtn').disabled = true;
+            document.getElementById('seqStatus').innerText = "Watch the sequence...";
+
+            // Generate 4 steps
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            for (let i = 0; i < 4; i++) {
+                sequence.push(colors[Math.floor(Math.random() * 4)]);
+            }
+            playSequence(0);
+        }
+
+        function playSequence(idx) {
+            if (idx >= sequence.length) {
+                allowInput = true;
+                document.getElementById('seqStatus').innerText = "Your turn! Repeat the sequence.";
+                return;
+            }
+            const color = sequence[idx];
+            const btn = document.getElementById('btn-' + color);
+            btn.classList.add('active');
+            setTimeout(() => {
+                btn.classList.remove('active');
+                setTimeout(() => playSequence(idx + 1), 300);
+            }, 500);
+        }
+
+        function handleSeqInput(color) {
+            if (!allowInput) return;
+
+            // Flash feedback
+            const btn = document.getElementById('btn-' + color);
+            btn.classList.add('active');
+            setTimeout(() => btn.classList.remove('active'), 200);
+
+            playerSeq.push(color);
+
+            // Check correctness so far
+            const currentIdx = playerSeq.length - 1;
+            if (playerSeq[currentIdx] !== sequence[currentIdx]) {
+                document.getElementById('seqStatus').innerText = "Incorrect! Try again.";
+                document.getElementById('startSeqBtn').disabled = false;
+                allowInput = false;
+                return;
+            }
+
+            if (playerSeq.length === sequence.length) {
+                document.getElementById('seqStatus').innerText = "Correct! Well done.";
+                document.getElementById('btnNext2').disabled = false;
+                allowInput = false;
+            }
+        }
+
+        // --- Canvas Logic ---
+        let canvas, ctx;
+        let drawing = false;
+
+        function initCanvas() {
+            canvas = document.getElementById('drawingBoard');
+            ctx = canvas.getContext('2d');
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseout', endDraw);
+
+            // Touch events
+            canvas.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent("mousedown", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            // ... (simplified touch handling for demo)
+        }
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        }
+
+        function startDraw(e) {
+            drawing = true;
+            draw(e);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function endDraw() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+
+</html>

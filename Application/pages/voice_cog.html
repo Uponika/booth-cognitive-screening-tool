@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Speech Assessment Recorder</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      /* slate-900 */
+      --card: #111827ee;
+      /* gray-900 w/alpha */
+      --accent: #22c55e;
+      /* green-500 */
+      --accent-2: #0ea5e9;
+      /* sky-500 */
+      --warning: #f59e0b;
+      /* amber-500 */
+      --text: #e5e7eb;
+      /* gray-200 */
+      --muted: #94a3b8;
+      /* slate-400 */
+      --danger: #ef4444;
+      /* red-500 */
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 20% 0%, #0b1225 20%, #0f172a 60%, #0b1225 100%);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: min(980px, 100%);
+    }
+
+    .card {
+      background: linear-gradient(180deg, #0b1225 0%, #0f172acc 40%, #0b1225 100%);
+      border: 1px solid #1f2937;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 24px 24px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: clamp(20px, 3vw, 28px);
+      letter-spacing: .3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      background: #0b2336;
+      border: 1px solid #1f3b52;
+      color: #9bd7ff;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .select,
+    .btn {
+      appearance: none;
+      border: 1px solid #1f2937;
+      background: #0b1a2a;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .btn {
+      cursor: pointer;
+      transition: transform .05s ease, box-shadow .15s ease, background .2s ease;
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .35);
+    }
+
+    .btn.accent {
+      background: linear-gradient(90deg, var(--accent), #16a34a);
+      color: #06210e;
+      border-color: #14532d;
+    }
+
+    .btn.secondary {
+      background: linear-gradient(90deg, var(--accent-2), #0284c7);
+      color: #031b28;
+      border-color: #075985;
+    }
+
+    .btn.warn {
+      background: linear-gradient(90deg, var(--warning), #d97706);
+      color: #2a1601;
+      border-color: #92400e;
+    }
+
+    .btn.danger {
+      background: linear-gradient(90deg, var(--danger), #dc2626);
+      color: #2a0b0b;
+      border-color: #7f1d1d;
+    }
+
+    .body {
+      padding: 8px 24px 24px;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: #0b1225;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #a7f3d0;
+      margin: 4px 0 12px;
+      letter-spacing: .3px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .questions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .q-option {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px;
+      background: #0a1524;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .q-option input {
+      margin-top: 4px;
+    }
+
+    .q-option:hover {
+      border-color: #35507a;
+    }
+
+    .instructions {
+      background: #07101e;
+      border: 1px dashed #1f3b52;
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .timer {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .time-big {
+      font-size: clamp(28px, 6vw, 44px);
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #07101e;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .status-line {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #475569;
+    }
+
+    .status-dot.live {
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, .15);
+    }
+
+    .footer {
+      padding: 12px 24px 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-top: 1px solid #1f2937;
+      background: #0a1222;
+    }
+
+    code.kv {
+      background: #0a1524;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #1f2937;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card" role="region" aria-label="Speech Assessment Recorder">
+      <div class="header">
+        <div class="title">🗣️ Speech Assessment Recorder <span class="badge" id="modeBadge">Spontaneous
+            Storytelling</span></div>
+        <div class="toolbar">
+          <label for="assessment" class="visually-hidden">Assessment style</label>
+          <select id="assessment" class="select" aria-label="Choose assessment style">
+            <option value="story">Spontaneous Storytelling</option>
+            <option value="procedure">Procedural Description</option>
+            <option value="descriptive">Descriptive Task</option>
+          </select>
+          <button id="startBtn" class="btn accent">▶ Start 2‑minute Recording</button>
+          <button id="stopBtn" class="btn danger" disabled>■ Stop</button>
+          <button id="downloadBtn" class="btn secondary" disabled>⬇ Download Recording</button>
+        </div>
+      </div>
+
+      <div class="body">
+        <!-- LEFT: Questions & Instructions -->
+        <div class="panel">
+          <div class="section-title">Assessment Style</div>
+          <p class="muted" style="margin-top:-6px;">Select one question below, then press <strong>Start</strong> to
+            begin a 2‑minute recording.</p>
+
+          <div class="section-title" style="margin-top:16px;">Questions</div>
+          <form id="questionsForm" class="questions" aria-label="Question choices">
+            <!-- radio options injected by JS -->
+          </form>
+
+          <div class="section-title" style="margin-top:18px;">Instructions</div>
+          <div class="instructions">
+            <ul style="margin:0 0 0 18px;">
+              <li>Click <strong>Start 2‑minute Recording</strong> to begin.</li>
+              <li>Speak clearly and stay near the microphone.</li>
+              <li>The timer will count down from 2:00 and stop automatically.</li>
+              <li>When finished, click <strong>Download Recording</strong> to save your file.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- RIGHT: Timer & Status -->
+        <div class="panel">
+          <div class="section-title">Timer</div>
+          <div class="timer">
+            <div class="time-big" id="timeDisplay" aria-live="polite">02:00</div>
+            <span class="pill" id="statusPill">Ready</span>
+          </div>
+
+          <div class="section-title" style="margin-top:18px;">Session Status</div>
+          <div class="status-line">
+            <div class="status-dot" id="statusDot" aria-hidden="true"></div>
+            <div id="statusText" class="muted">Idle</div>
+          </div>
+
+          <div style="margin-top:14px; display:grid; gap:8px;">
+            <div><span class="muted">Selected Assessment:</span> <code class="kv"
+                id="kvAssessment">Spontaneous Storytelling</code></div>
+            <div><span class="muted">Selected Question:</span> <code class="kv" id="kvQuestion">(Choose one)</code>
+            </div>
+            <div><span class="muted">Finished At:</span> <code class="kv" id="kvFinished">—</code></div>
+            <div><span class="muted">Recorded Duration:</span> <code class="kv" id="kvDuration">—</code></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="muted">Tip: if the Start button is disabled, be sure to select a question first and allow
+          microphone access.</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const assessmentEl = document.getElementById('assessment');
+      const modeBadge = document.getElementById('modeBadge');
+      const form = document.getElementById('questionsForm');
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const timeDisplay = document.getElementById('timeDisplay');
+      const statusPill = document.getElementById('statusPill');
+      const statusText = document.getElementById('statusText');
+      const statusDot = document.getElementById('statusDot');
+      const kvAssessment = document.getElementById('kvAssessment');
+      const kvQuestion = document.getElementById('kvQuestion');
+      const kvFinished = document.getElementById('kvFinished');
+      const kvDuration = document.getElementById('kvDuration');
+
+      const QUESTION_BANK = {
+        story: {
+          label: 'Spontaneous Storytelling',
+          items: [
+            'Tell me about a memorable trip you took. What made it special?',
+            'Describe a time you felt proud of yourself and why.',
+            'Share a childhood memory that really stands out.'
+          ]
+        },
+        procedure: {
+          label: 'Procedural Description',
+          items: [
+            'Explain how to make a cup of tea, step by step.',
+            'Describe the steps to change a flat tire safely.',
+            'Explain how to send an email with a file attachment.'
+          ]
+        },
+        descriptive: {
+          label: 'Descriptive Task',
+          items: [
+            'Describe your favorite room at home in as much detail as you can.',
+            'Describe a busy street market so I can imagine being there.',
+            'Describe a park or natural scene you enjoy visiting.'
+          ]
+        }
+      };
+
+      // Render questions for current assessment
+      function renderQuestions() {
+        const mode = assessmentEl.value;
+        const { label, items } = QUESTION_BANK[mode];
+        modeBadge.textContent = label; kvAssessment.textContent = label;
+        form.innerHTML = '';
+        items.forEach((q, i) => {
+          const id = `q_${mode}_${i}`;
+          const row = document.createElement('label');
+          row.className = 'q-option';
+          row.innerHTML = `
+        <input type="radio" name="question" value="${q.replaceAll('"', '&quot;')}" id="${id}" />
+        <div><strong>Q${i + 1}.</strong> ${q}</div>
+      `;
+          form.appendChild(row);
+        });
+        kvQuestion.textContent = '(Choose one)';
+        startBtn.disabled = true; // require a question
+      }
+
+      renderQuestions();
+
+      form.addEventListener('change', (e) => {
+        if (e.target && e.target.name === 'question') {
+          kvQuestion.textContent = e.target.value;
+          startBtn.disabled = false;
+        }
+      });
+
+      assessmentEl.addEventListener('change', () => {
+        stopIfNeeded();
+        renderQuestions();
+        resetUI();
+      });
+
+      // Recording state
+      let mediaRecorder = null;
+      let chunks = [];
+      let countdown = null;
+      let remaining = 120; // seconds
+      let startedAt = null;
+
+      function mmss(s) {
+        const m = Math.floor(s / 60).toString().padStart(2, '0');
+        const sec = Math.floor(s % 60).toString().padStart(2, '0');
+        return `${m}:${sec}`;
+      }
+
+      function setStatus(text, live = false) {
+        statusText.textContent = text;
+        statusPill.textContent = live ? 'Recording' : text;
+        statusDot.classList.toggle('live', live);
+      }
+
+      function resetUI() {
+        timeDisplay.textContent = '02:00';
+        kvFinished.textContent = '—';
+        kvDuration.textContent = '—';
+        downloadBtn.disabled = true;
+        stopBtn.disabled = true;
+        setStatus('Idle', false);
+      }
+
+      async function startRecording() {
+        const selected = form.querySelector('input[name="question"]:checked');
+        if (!selected) { alert('Please select a question first.'); return; }
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+          chunks = [];
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+          mediaRecorder.onstop = onRecordingStop;
+          mediaRecorder.start();
+
+          startedAt = Date.now();
+          remaining = 120;
+          timeDisplay.textContent = mmss(remaining);
+          setStatus('Live', true);
+          stopBtn.disabled = false;
+          startBtn.disabled = true;
+          downloadBtn.disabled = true;
+
+          if (countdown) clearInterval(countdown);
+          countdown = setInterval(() => {
+            remaining -= 1;
+            timeDisplay.textContent = mmss(Math.max(remaining, 0));
+            if (remaining <= 0) { stopIfNeeded(); }
+          }, 1000);
+
+        } catch (err) {
+          console.error(err);
+          alert('Microphone access is required to record. Please allow access and try again.');
+        }
+      }
+
+      function stopIfNeeded() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+      }
+
+      function stopRecording() { stopIfNeeded(); }
+
+      function onRecordingStop() {
+        if (countdown) { clearInterval(countdown); countdown = null; }
+
+        const endAt = new Date();
+        const elapsed = Math.round((Date.now() - startedAt) / 1000);
+
+        // Simulated AI Analysis (VECE Output)
+        const clarity = Math.floor(Math.random() * (15 - 10) + 10); // 10-15
+        const fluency = Math.floor(Math.random() * (15 - 8) + 8);   // 8-15
+        const prosody = Math.floor(Math.random() * (15 - 7) + 7);   // 7-15
+        const totalScore = (clarity + fluency + prosody) / 3;
+
+        let narrative = "Speech patterns are within normal limits.";
+        if (fluency < 10) narrative = "Minor hesitation detected in sentence structure. ";
+        if (prosody < 10) narrative += "Reduced pitch variation observed (monotone).";
+
+        const result = {
+          timestamp: endAt.toISOString(),
+          durationSeconds: elapsed,
+          metrics: {
+            clarity: clarity,
+            fluency: fluency,
+            prosody: prosody,
+            total: totalScore.toFixed(1)
+          },
+          narrative: narrative,
+          assessmentType: assessmentEl.value,
+          question: form.querySelector('input[name="question"]:checked')?.value || 'Unknown'
+        };
+
+        // Save to Session Storage
+        sessionStorage.setItem('voice_data', JSON.stringify(result));
+
+        // UI Feedback - Processing Overlay
+        const cardBody = document.querySelector('.body');
+        cardBody.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <div style="display:inline-block; width: 40px; height: 40px; border: 4px solid rgba(14, 165, 233, 0.3); border-radius: 50%; border-top-color: #0ea5e9; animation: spin 1s linear infinite;"></div>
+                <h2 style="margin-top:20px; font-size: 24px;">Analyzing Speech Patterns...</h2>
+                <p style="color: #94a3b8;">Extracting prosody and fluency metrics.</p>
+                <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            </div>
+        `;
+        document.querySelector('.toolbar').style.display = 'none';
+
+        // Redirect after delay
+        setTimeout(() => {
+          window.location.href = 'cdt.html';
+        }, 2500);
+      }
+
+      // Wire buttons
+      startBtn.addEventListener('click', startRecording);
+      stopBtn.addEventListener('click', stopRecording);
+      // Download button logic removed for kiosk flow
+
+    })();
+  </script>
+</body>
+
+</html>

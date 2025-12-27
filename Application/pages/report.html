@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comprehensive Cognitive Assessment Report</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            print-color-adjust: exact;
+        }
+
+        .report-header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            break-inside: avoid;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 8px solid #0d6efd;
+            margin: 0 auto;
+        }
+
+        .score-val {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ai-badge {
+            background: #eef2ff;
+            color: #4f46e5;
+            border: 1px solid #c7d2fe;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+
+            body {
+                background: white;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="report-header text-center">
+        <div class="container">
+            <h1 class="fw-bold">Cognitive Assessment Report</h1>
+            <p class="mb-0 op-75">Generated on <span id="reportDate"></span></p>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+
+        <!-- Overall Summary -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <div class="score-circle">
+                                <div class="score-val" id="overallScore">--</div>
+                                <div class="score-label">Risk Index</div>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <h3 class="fw-bold text-primary">Executive Summary</h3>
+                            <p class="lead text-muted" id="summaryText">Processing assessment data...</p>
+                            <div class="ai-badge">
+                                <i class="bi bi-cpu-fill"></i>
+                                <span><strong>AI Analysis:</strong> <span id="aiSummary">System has integrated data from
+                                        4 modules.</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-6">
+                <!-- FAQ Section -->
+                <div class="card" id="card-faq">
+                    <div class="card-header bg-white fw-bold border-bottom">
+                        <i class="bi bi-list-check text-primary me-2"></i>Functional Activities (FAQ)
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total Score (Lower is better):</span>
+                            <strong id="faqTotal">--</strong>
+                        </div>
+                        <div id="faqDomains">
+                            <!-- Injected -->
+                        </div>
+                        <div class="alert alert-light border mt-3 mb-0" id="faqAnalysis">
+                            <small class="text-muted">Analysis pending...</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CDT Section -->
+                <div class="card" id="card-cdt">
+                    <div class="card-header bg-white fw-bold border-bottom">
+                        <i class="bi bi-clock text-primary me-2"></i>Clock Drawing Test (CDT)
+                    </div>
+                    <div class="card-body text-center">
+                        <img id="cdtImage" class="img-fluid border rounded mb-3"
+                            style="max-height: 200px; display:none;">
+                        <div class="row text-start">
+                            <div class="col-4">
+                                <small class="d-block text-muted">Contour</small>
+                                <strong id="cdtContour">--</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="d-block text-muted">Numbers</small>
+                                <strong id="cdtNumbers">--</strong>
+                            </div>
+                            <div class="col-4">
+                                <small class="d-block text-muted">Hands</small>
+                                <strong id="cdtHands">--</strong>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-start mb-0"><small id="cdtNotes">--</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-6">
+                <!-- VoiceCog Section -->
+                <div class="card" id="card-voice">
+                    <div class="card-header bg-white fw-bold border-bottom">
+                        <i class="bi bi-mic text-primary me-2"></i>Voice & Cognitive (VECE)
+                    </div>
+                    <div class="card-body">
+                        <canvas id="voiceChart" style="max-height: 250px;"></canvas>
+                        <div class="mt-3">
+                            <p class="mb-1"><small><strong>Narrative Analysis:</strong></small></p>
+                            <p class="fst-italic text-muted" id="voiceNarrative">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MCFT Section -->
+                <div class="card" id="card-mcft">
+                    <div class="card-header bg-white fw-bold border-bottom">
+                        <i class="bi bi-grid-3x3 text-primary me-2"></i>MCFT Module
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Orientation</span>
+                                <strong id="mcftOrient">--</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Sequence Memory</span>
+                                <strong id="mcftSeq">--</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Object Naming</span>
+                                <strong id="mcftNaming">--</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Visuospatial Copy</span>
+                                <strong id="mcftCopy">--</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 no-print">
+            <button class="btn btn-primary btn-lg px-5 me-2" onclick="window.print()"><i
+                    class="bi bi-printer me-2"></i>Print Report</button>
+            <button class="btn btn-success btn-lg px-5 me-2" data-bs-toggle="modal" data-bs-target="#emailModal"><i
+                    class="bi bi-envelope-fill me-2"></i>Email Report</button>
+            <a href="index.html" class="btn btn-outline-secondary btn-lg" onclick="sessionStorage.clear()">Finish &
+                Exit</a>
+        </div>
+
+        <!-- Email Modal -->
+        <div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title"><i class="bi bi-envelope-fill me-2"></i>Email Report</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Enter the email address below to receive a secure copy of the report.</p>
+                        <div class="mb-3">
+                            <label for="reportEmail" class="form-label fw-bold">Email Address</label>
+                            <input type="email" class="form-control" id="reportEmail" placeholder="name@example.com">
+                            <div class="form-text text-muted">Pre-filled from consent form if available.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" onclick="sendReport()">Send Securely</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    </div>
+
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('reportDate').textContent = new Date().toLocaleDateString();
+
+            // 1. Load Data
+            const patientData = JSON.parse(sessionStorage.getItem('patient_data') || '{}');
+            const faqData = JSON.parse(sessionStorage.getItem('faq_data') || 'null');
+            const voiceData = JSON.parse(sessionStorage.getItem('voice_data') || 'null');
+            const cdtData = JSON.parse(sessionStorage.getItem('cdt_data') || 'null');
+            const mcftData = JSON.parse(sessionStorage.getItem('mcft_data') || 'null');
+
+            // 2. Populate FAQ
+            if (faqData) {
+                document.getElementById('faqTotal').textContent = `${faqData.totalScore} / ${faqData.maxScore}`;
+                const domains = faqData.analysis?.domainScores;
+                if (domains) {
+                    let html = '';
+                    for (const [k, v] of Object.entries(domains)) {
+                        html += `<div class="d-flex justify-content-between"><small class="text-capitalize">${k}</small><small>${v.score}/${v.max}</small></div>`;
+                        html += `<div class="progress mb-2" style="height:4px;"><div class="progress-bar bg-info" style="width:${v.pct}%"></div></div>`;
+                    }
+                    document.getElementById('faqDomains').innerHTML = html;
+                }
+                const patterns = faqData.analysis?.patterns || [];
+                document.getElementById('faqAnalysis').innerHTML = patterns.length > 0 ?
+                    `<strong>Noted:</strong> ${patterns.join(' ')}` :
+                    `<span class="text-success"><i class="bi bi-check-circle"></i> No significant functional deficits detected.</span>`;
+            } else {
+                document.getElementById('card-faq').innerHTML += '<div class="p-3 text-muted">No data found.</div>';
+            }
+
+            // 3. Populate Voice
+            if (voiceData) {
+                document.getElementById('voiceNarrative').textContent = voiceData.narrative;
+                const ctx = document.getElementById('voiceChart');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Clarity', 'Fluency', 'Prosody'],
+                        datasets: [{
+                            label: 'Score',
+                            data: [voiceData.metrics.clarity, voiceData.metrics.fluency, voiceData.metrics.prosody],
+                            fill: true,
+                            backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                            borderColor: '#0d6efd',
+                            pointBackgroundColor: '#0d6efd'
+                        }]
+                    },
+                    options: {
+                        scales: { r: { min: 0, max: 15, ticks: { display: false } } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // 4. Populate CDT
+            if (cdtData) {
+                if (cdtData.image) {
+                    const img = document.getElementById('cdtImage');
+                    img.src = cdtData.image;
+                    img.style.display = 'block';
+                }
+                document.getElementById('cdtContour').textContent = cdtData.scores.contour;
+                document.getElementById('cdtNumbers').textContent = cdtData.scores.numbers;
+                document.getElementById('cdtHands').textContent = cdtData.scores.hands;
+                document.getElementById('cdtNotes').textContent = cdtData.analysis;
+            }
+
+            // 5. Populate MCFT
+            if (mcftData) {
+                document.getElementById('mcftOrient').textContent = `${mcftData.scores.orientation}/4`;
+                document.getElementById('mcftSeq').textContent = `${mcftData.scores.sequence}/4`;
+                document.getElementById('mcftNaming').textContent = `${mcftData.scores.naming}/3`;
+                document.getElementById('mcftCopy').textContent = `${mcftData.scores.copying}/10`;
+            }
+
+            // 6. Overall Summary Logic (Simple Heuristic for Demo)
+            let riskPoints = 0;
+            if (faqData && faqData.totalScore > 9) riskPoints += 2;
+            if (voiceData && voiceData.metrics.total < 10) riskPoints += 1;
+            if (cdtData && cdtData.scores.total < 15) riskPoints += 2;
+            if (mcftData && mcftData.scores.total < 20) riskPoints += 1;
+
+            const scoreEl = document.getElementById('overallScore');
+            const summaryEl = document.getElementById('summaryText');
+            const aiEl = document.getElementById('aiSummary');
+
+            if (riskPoints === 0) {
+                scoreEl.textContent = "LOW";
+                scoreEl.style.borderColor = "#198754"; // green
+                summaryEl.textContent = "Cognitive function appears within normal limits across all tested domains.";
+                aiEl.textContent = "No significant flags detected.";
+            } else if (riskPoints <= 2) {
+                scoreEl.textContent = "MED";
+                scoreEl.style.borderColor = "#ffc107"; // orange
+                summaryEl.textContent = "Minor inconsistencies detected. Routine monitoring recommended.";
+                aiEl.textContent = "Isolated deficits observed in specific domains.";
+            } else {
+                scoreEl.textContent = "HIGH";
+                scoreEl.style.borderColor = "#dc3545"; // red
+                summaryEl.textContent = "Significant indicators of cognitive impairment detected.";
+                aiEl.textContent = "Multi-domain analysis suggests potential concern. Clinical follow-up advised.";
+            }
+
+        });
+
+        // Event listener for modal open to pre-fill email
+        const emailModal = document.getElementById('emailModal');
+        emailModal.addEventListener('show.bs.modal', function (event) {
+            const patientData = JSON.parse(sessionStorage.getItem('patient_data') || '{}');
+            const emailInput = document.getElementById('reportEmail');
+            // Check demographics.email
+            if (patientData.demographics && patientData.demographics.email) {
+                emailInput.value = patientData.demographics.email;
+            } else {
+                emailInput.value = '';
+            }
+        });
+
+        function sendReport() {
+            const email = document.getElementById('reportEmail').value;
+            if (!email || !email.includes('@')) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            const patientData = JSON.parse(sessionStorage.getItem('patient_data') || '{}');
+            const modalEl = document.getElementById('emailModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+
+            // Button loading state
+            const btn = document.querySelector('#emailModal .btn-success');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+            btn.disabled = true;
+
+            fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    doctor_email: email, // Variable name kept for API compatibility, but effectively is recipient
+                    patient_data: patientData,
+                    // In a real app, we'd send the full report HTML or ID reference here
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    modal.hide();
+                    alert(data.message);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('An error occurred while sending the email.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        }
+    </script>
+</body>
+
+</html>

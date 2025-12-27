@@ -8,17 +8,26 @@
 
 const cards = document.querySelectorAll('.card-animate');
 const io = new IntersectionObserver(entries => {
-entries.forEach(e => {
-    if (e.isIntersecting) {
-    e.target.style.animationPlayState = 'running';
-    e.target.classList.add('in-view');
-    io.unobserve(e.target);
-    }
-});
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.style.animationPlayState = 'running';
+            e.target.classList.add('in-view');
+            io.unobserve(e.target);
+        }
+    });
 }, { threshold: 0.2 });
 
 cards.forEach(c => {
-// pause until observed
-c.style.animationPlayState = 'paused';
-io.observe(c);
+    // pause until observed
+    c.style.animationPlayState = 'paused';
+    io.observe(c);
 });
+
+function startAssessment() {
+    // Clear any previous session data to ensure a fresh start
+    sessionStorage.clear();
+    console.log("Session storage cleared. Starting full assessment.");
+
+    // Redirect to the first test: Consent Form
+    window.location.href = 'consent.html';
+}

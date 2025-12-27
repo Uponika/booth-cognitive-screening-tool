@@ -1,64 +1,467 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Cognitive Screening Booth</title>
-        <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
-        <!-- Bootstrap icons-->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="../css/styles.css" rel="stylesheet" />
-    </head>
-    <body>
-        <!-- Responsive navbar-->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
-            <div class="container px-5">
-                <a class="navbar-brand" href="index.html">Cognitive Screening Booth</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">Contact</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">Services</a></li>
-                    </ul>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Functional Activities Questionnaire – Quizzard</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --brand: #0d6efd;
+            /* Bootstrap primary */
+            --brand-2: #ff6b6b;
+            /* Accent */
+            --card-bg: #ffffff;
+            --opt-normal: #16a34a;
+            /* green */
+            --opt-assist: #f59e0b;
+            /* amber */
+            --opt-diff: #eab308;
+            /* yellow */
+            --opt-dependent: #dc2626;
+            /* red */
+            --opt-never-could: #ef4444;
+            /* red-500 */
+            --opt-never-could-now: #22c55e;
+            /* green-500 */
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f5f3ff 100%);
+            min-height: 100vh;
+        }
+
+        .quiz-wrapper {
+            max-width: 900px;
+        }
+
+        .quiz-card {
+            border: none;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .12);
+            background: var(--card-bg);
+        }
+
+        .question-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .opt-label {
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: .2px;
+            padding: 1rem 1.1rem;
+            border-radius: 0.85rem;
+            border: 2px solid rgba(0, 0, 0, .06);
+            transition: transform .1s ease, box-shadow .15s ease, border-color .15s ease;
+            user-select: none;
+            text-align: left;
+        }
+
+        .opt-label:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, .14);
+            border-color: rgba(0, 0, 0, .2);
+        }
+
+        .btn-check:checked+.opt-label {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 10px 24px rgba(13, 110, 253, .25);
+        }
+
+        .opt-normal {
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+        }
+
+        .opt-assist {
+            background: #fff7ed;
+            border-color: #fed7aa;
+        }
+
+        .opt-diff {
+            background: #fefce8;
+            border-color: #fde68a;
+        }
+
+        .opt-dep {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .opt-never-now {
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+        }
+
+        .opt-never-diff {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .nav-btn {
+            font-weight: 800;
+            letter-spacing: .3px;
+            border-radius: 0.9rem;
+            padding: .9rem 1.2rem;
+        }
+
+        .progress {
+            height: 0.9rem;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: rgba(13, 110, 253, .15);
+        }
+
+        .badge-pill {
+            border-radius: 999px;
+            padding: .6rem .95rem;
+            font-weight: 800;
+        }
+
+        .report-card {
+            border-radius: 1.25rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .12);
+            background: #ffffff;
+        }
+
+        .visually-hint {
+            font-size: .95rem;
+            color: #475569
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-4 py-md-5">
+        <div class="quiz-wrapper mx-auto">
+
+            <!-- Header -->
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="badge text-bg-primary badge-pill">FAQ</div>
+                <div>
+                    <div class="h4 mb-0 fw-black">Functional Activities Questionnaire</div>
+                    <div class="text-muted">One question per step • Select one answer</div>
                 </div>
-            </div>
-        </nav>
-        <body>
-            <!-- Background image -->
-            <img src="../images/bg-1.jpg" alt="Background" style="position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-1;" />
-            <main class="d-flex flex-column justify-content-center align-items-center text-center text-white min-vh-100" style="background: rgba(5,10,25,0.5);">
-                <div class="container px-5">
-                    <div class="box-container text-center text-white p-5 rounded-4 shadow-lg">
-                        <h1 class="display-4 fw-bolder mb-3">Welcome to FAQ</h1>
-                        <p class="lead text-white-50 mb-5">Functional Activities Questionnaire</p>
-                        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                            <!-- Redirect to Test Link -->
-                            <a class="btn btn-outline-light btn-lg px-4" href="#more">Start the Test</a>
-                        </div>
+                <div class="ms-auto d-none d-md-flex align-items-center gap-2">
+                    <span id="stepCounter" class="fw-bold"></span>
+                    <div class="progress flex-grow-1" style="width:220px;">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
                     </div>
                 </div>
-            </main>
-        </body>        
-        <!-- Footer-->
-        <footer class="py-5 bg-dark">
-            <div class="container px-5">
-                <p class="m-0 text-center text-white">
-                    <span class="px-2">&copy; Copyright 2025</span> |
-                    <span class="px-2">Cognitive Screening Booth</span> |
-                    <span class="px-2">All Rights Reserved</span>
-                </p>
             </div>
-        </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="../js/scripts.js"></script>
-        <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
-    </body>
+
+            <!-- Card -->
+            <div class="card quiz-card">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="badge text-bg-info badge-pill" id="questionBadge">Question</span>
+                        <span class="fw-bold d-md-none" id="stepCounterSm"></span>
+                    </div>
+
+                    <h1 class="question-title mb-4" id="questionText">Loading…</h1>
+
+                    <form id="optionsForm" class="row g-3">
+                        <!-- Options injected here -->
+                    </form>
+
+                    <div class="d-flex flex-column flex-md-row gap-3 mt-4">
+                        <button id="prevBtn" class="btn btn-outline-secondary nav-btn" type="button" disabled>
+                            ◀ Previous
+                        </button>
+                        <div class="ms-md-auto d-flex gap-3">
+                            <button id="saveBtn" class="btn btn-outline-primary nav-btn" type="button"
+                                title="Temporarily save your progress to this browser">
+                                💾 Save Progress
+                            </button>
+                            <button id="nextBtn" class="btn btn-primary nav-btn" type="button">
+                                Next ▶
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="visually-hint mt-3">Tip: You can use 1–6 keys to select an option quickly.</div>
+                </div>
+            </div>
+
+            <!-- Report (hidden until submit) -->
+            <div id="reportSection" class="report-card p-4 p-md-5 mt-4 d-none">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="badge text-bg-success badge-pill">Report</div>
+                    <h2 class="mb-0">FAQ Summary</h2>
+                </div>
+                <p class="lead mb-1">Total Score: <strong id="totalScore">0</strong> / <span id="maxScore">30</span></p>
+                <p class="text-muted mb-4">(Higher scores indicate greater functional difficulty.)</p>
+
+                <div id="reportList" class="list-group list-group-flush mb-4">
+                    <!-- Per-question summary -->
+                </div>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <button id="downloadTxt" class="btn btn-success nav-btn" type="button">⬇ Download TXT
+                        Report</button>
+                    <button id="restartBtn" class="btn btn-outline-secondary nav-btn" type="button">↺ Restart</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Questions
+        const questions = [
+            'Writing checks, paying bills, balancing checkbook',
+            'Assembling tax records, business affairs, or papers',
+            'Shopping alone for clothes, household necessities, or groceries',
+            'Playing a game of skill, working on a hobby',
+            'Heating water, making a cup of coffee, turning off stove after use',
+            'Preparing a balanced meal',
+            'Keeping track of current events',
+            'Paying attention to, understanding, discussing TV, book, magazine',
+            'Remembering appointments, family occasions, holidays, medications',
+            'Traveling out of neighborhood, driving, arranging to take buses'
+        ];
+
+        // Options and score mapping
+        const options = [
+            { key: 'dependent', label: 'Dependent', score: 3, cls: 'opt-dep' },
+            { key: 'assist', label: 'Requires assistance', score: 2, cls: 'opt-assist' },
+            { key: 'diff-self', label: 'Has difficulty but does by self', score: 1, cls: 'opt-diff' },
+            { key: 'normal', label: 'Normal (Has no difficulty to do it by self)', score: 0, cls: 'opt-normal' },
+            { key: 'never-could-now', label: 'Never did [the activity] but could do now', score: 0, cls: 'opt-never-now' },
+            { key: 'never-diff', label: 'Never did and would have difficulty now', score: 1, cls: 'opt-never-diff' },
+        ];
+
+        // State
+        let current = 0;
+        const answers = new Array(questions.length).fill(null); // store selected option key
+
+        // Elements
+        const qText = document.getElementById('questionText');
+        const qBadge = document.getElementById('questionBadge');
+        const form = document.getElementById('optionsForm');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const stepCounter = document.getElementById('stepCounter');
+        const stepCounterSm = document.getElementById('stepCounterSm');
+        const progressBar = document.getElementById('progressBar');
+
+        const reportSection = document.getElementById('reportSection');
+        const totalScoreEl = document.getElementById('totalScore');
+        const maxScoreEl = document.getElementById('maxScore');
+        const reportList = document.getElementById('reportList');
+        const downloadTxt = document.getElementById('downloadTxt');
+        const restartBtn = document.getElementById('restartBtn');
+
+        maxScoreEl.textContent = (questions.length * 3).toString();
+
+        function render() {
+            // Update headers
+            qBadge.textContent = `Question ${current + 1}`;
+            qText.textContent = questions[current];
+            stepCounter.textContent = `${current + 1} / ${questions.length}`;
+            stepCounterSm.textContent = `${current + 1} / ${questions.length}`;
+
+            const pct = Math.round(((current) / questions.length) * 100);
+            progressBar.style.width = pct + '%';
+            progressBar.setAttribute('aria-valuenow', pct);
+
+            // Options
+            form.innerHTML = '';
+            options.forEach((opt, idx) => {
+                const id = `q${current}_opt${idx}`;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'col-12';
+
+                const input = document.createElement('input');
+                input.className = 'btn-check';
+                input.type = 'radio';
+                input.name = `q${current}`;
+                input.id = id;
+                input.value = opt.key;
+                input.checked = answers[current] === opt.key;
+
+                const label = document.createElement('label');
+                label.className = `opt-label w-100 ${opt.cls}`;
+                label.setAttribute('for', id);
+                label.innerHTML = `<div class="d-flex align-items-start gap-2">
+            <span class="fw-black">${idx + 1}.</span>
+            <span>${opt.label}</span>
+          </div>`;
+
+                input.addEventListener('change', () => {
+                    answers[current] = opt.key;
+                    nextBtn.disabled = false;
+                });
+
+                wrapper.appendChild(input);
+                wrapper.appendChild(label);
+                form.appendChild(wrapper);
+            });
+
+            prevBtn.disabled = current === 0;
+            nextBtn.textContent = current === questions.length - 1 ? 'Submit ▶' : 'Next ▶';
+            nextBtn.classList.toggle('btn-success', current === questions.length - 1);
+            nextBtn.disabled = answers[current] === null;
+
+            // Focus first available option for accessibility
+            const firstInput = form.querySelector('input.btn-check');
+            if (firstInput) firstInput.focus({ preventScroll: true });
+        }
+
+        function computeScore() {
+            let total = 0;
+            let detail = [];
+            answers.forEach((key, idx) => {
+                const opt = options.find(o => o.key === key);
+                const score = opt ? opt.score : 0;
+                total += score;
+                detail.push({ q: questions[idx], label: opt ? opt.label : '—', score });
+            });
+            return { total, detail };
+        }
+
+        function generateFAQAnalysis(answers) {
+            // Simulated AI Analysis
+            const domains = {
+                financial: [0, 1], // Bills, Tax
+                logistical: [2, 9], // Shopping, Travel
+                executive: [3, 6], // Games, Events
+                domestic: [4, 5, 8], // Coffee, Meal, Meds
+                attention: [7] // Media
+            };
+
+            let domainScores = {};
+            for (const [key, indices] of Object.entries(domains)) {
+                let score = 0;
+                let max = indices.length * 3;
+                indices.forEach(idx => {
+                    const ansKey = answers[idx];
+                    const opt = options.find(o => o.key === ansKey);
+                    if (opt) score += opt.score;
+                });
+                domainScores[key] = { score, max, pct: Math.round((score / max) * 100) };
+            }
+
+            // Pattern detection
+            let patterns = [];
+            let alternating = 0;
+            for (let i = 0; i < answers.length - 1; i++) {
+                const curr = options.find(o => o.key === answers[i])?.score || 0;
+                const next = options.find(o => o.key === answers[i + 1])?.score || 0;
+                if (Math.abs(curr - next) >= 2) alternating++;
+            }
+            if (alternating > 3) patterns.push("Inconsistent response pattern detected.");
+            if (domainScores.financial.pct > 60) patterns.push("Significant difficulty in complex financial tasks.");
+            if (domainScores.domestic.pct < 30 && domainScores.logistical.pct > 60) patterns.push("Domestic skills preserved but community mobility impaired.");
+
+            return { domainScores, patterns };
+        }
+
+        function finishTest() {
+            const { total, detail } = computeScore();
+            const analysis = generateFAQAnalysis(answers);
+
+            const result = {
+                timestamp: new Date().toISOString(),
+                totalScore: total,
+                maxScore: questions.length * 3,
+                details: detail,
+                analysis: analysis,
+                rawAnswers: answers
+            };
+
+            // Save to Session Storage
+            sessionStorage.setItem('faq_data', JSON.stringify(result));
+
+            // UI Feedback
+            document.querySelector('.quiz-card').innerHTML = `
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <h2 class="h4">Processing Results...</h2>
+                    <p class="text-muted">AI is analyzing your response patterns.</p>
+                </div>
+            `;
+
+            // Redirect after delay
+            setTimeout(() => {
+                window.location.href = 'voice_cog.html';
+            }, 2000);
+        }
+
+        // Navigation
+        prevBtn.addEventListener('click', () => {
+            if (current > 0) { current--; render(); }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (current < questions.length - 1) {
+                current++;
+                render();
+            } else {
+                finishTest();
+            }
+        });
+
+        // Keyboard shortcuts 1–6 to pick option
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '6') {
+                const idx = parseInt(e.key, 10) - 1;
+                const input = document.getElementById(`q${current}_opt${idx}`);
+                if (input) { input.checked = true; input.dispatchEvent(new Event('change')); }
+            }
+            if (e.key === 'ArrowRight') nextBtn.click();
+            if (e.key === 'ArrowLeft') prevBtn.click();
+        });
+
+        // Save progress locally
+        // Save progress (removed local storage for session flow, keeping placeholder)
+        saveBtn.style.display = 'none'; // Hide save button as we are in a linear flow
+
+        // Download TXT report
+        downloadTxt.addEventListener('click', () => {
+            const { total, detail } = computeScore();
+            let lines = [];
+            lines.push('Functional Activities Questionnaire (FAQ)');
+            lines.push('-------------------------------------------');
+            detail.forEach((row, i) => {
+                lines.push(`${i + 1}. ${row.q}`);
+                lines.push(`   Answer: ${row.label}`);
+                lines.push(`   Score: ${row.score}`);
+            });
+            lines.push('');
+            lines.push(`Total Score: ${total} / ${questions.length * 3}`);
+            const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'FAQ_Report.txt';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        // Restart
+        restartBtn.addEventListener('click', () => {
+            for (let i = 0; i < answers.length; i++) answers[i] = null;
+            current = 0;
+            reportSection.classList.add('d-none');
+            document.querySelector('.quiz-card').classList.remove('d-none');
+            render();
+        });
+
+        // Restore saved progress if any
+        // Restore logic removed for forced linear flow
+
+        // Initial paint
+        render();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>
