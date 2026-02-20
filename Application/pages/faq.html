@@ -135,6 +135,17 @@
             font-size: .95rem;
             color: #475569
         }
+
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity .35s ease, transform .35s ease;
+        }
     </style>
 </head>
 
@@ -262,58 +273,128 @@
 
         maxScoreEl.textContent = (questions.length * 3).toString();
 
+        // function render() {
+        //     // Update headers
+        //     qBadge.textContent = `Question ${current + 1}`;
+        //     qText.textContent = questions[current];
+        //     stepCounter.textContent = `${current + 1} / ${questions.length}`;
+        //     stepCounterSm.textContent = `${current + 1} / ${questions.length}`;
+
+        //     const pct = Math.round(((current) / questions.length) * 100);
+        //     progressBar.style.width = pct + '%';
+        //     progressBar.setAttribute('aria-valuenow', pct);
+
+        //     // Options
+        //     form.innerHTML = '';
+        //     options.forEach((opt, idx) => {
+        //         const id = `q${current}_opt${idx}`;
+        //         const wrapper = document.createElement('div');
+        //         wrapper.className = 'col-12';
+
+        //         const input = document.createElement('input');
+        //         input.className = 'btn-check';
+        //         input.type = 'radio';
+        //         input.name = `q${current}`;
+        //         input.id = id;
+        //         input.value = opt.key;
+        //         input.checked = answers[current] === opt.key;
+
+        //         const label = document.createElement('label');
+        //         label.className = `opt-label w-100 ${opt.cls}`;
+        //         label.setAttribute('for', id);
+        //         label.innerHTML = `<div class="d-flex align-items-start gap-2">
+        //     <span class="fw-black">${idx + 1}.</span>
+        //     <span>${opt.label}</span>
+        //   </div>`;
+
+        //         input.addEventListener('change', () => {
+        //             answers[current] = opt.key;
+        //             nextBtn.disabled = false;
+        //         });
+
+        //         wrapper.appendChild(input);
+        //         wrapper.appendChild(label);
+        //         form.appendChild(wrapper);
+        //     });
+
+        //     prevBtn.disabled = current === 0;
+        //     nextBtn.textContent = current === questions.length - 1 ? 'Submit ▶' : 'Next ▶';
+        //     nextBtn.classList.toggle('btn-success', current === questions.length - 1);
+        //     nextBtn.disabled = answers[current] === null;
+
+        //     // Focus first available option for accessibility
+        //     const firstInput = form.querySelector('input.btn-check');
+        //     if (firstInput) firstInput.focus({ preventScroll: true });
+        // }
+
         function render() {
-            // Update headers
-            qBadge.textContent = `Question ${current + 1}`;
-            qText.textContent = questions[current];
-            stepCounter.textContent = `${current + 1} / ${questions.length}`;
-            stepCounterSm.textContent = `${current + 1} / ${questions.length}`;
 
-            const pct = Math.round(((current) / questions.length) * 100);
-            progressBar.style.width = pct + '%';
-            progressBar.setAttribute('aria-valuenow', pct);
+            const cardBody = document.querySelector('.card-body');
 
-            // Options
-            form.innerHTML = '';
-            options.forEach((opt, idx) => {
-                const id = `q${current}_opt${idx}`;
-                const wrapper = document.createElement('div');
-                wrapper.className = 'col-12';
+            // Add fade-out first
+            cardBody.classList.add('fade-enter');
 
-                const input = document.createElement('input');
-                input.className = 'btn-check';
-                input.type = 'radio';
-                input.name = `q${current}`;
-                input.id = id;
-                input.value = opt.key;
-                input.checked = answers[current] === opt.key;
+            setTimeout(() => {
 
-                const label = document.createElement('label');
-                label.className = `opt-label w-100 ${opt.cls}`;
-                label.setAttribute('for', id);
-                label.innerHTML = `<div class="d-flex align-items-start gap-2">
-            <span class="fw-black">${idx + 1}.</span>
-            <span>${opt.label}</span>
-          </div>`;
+                // Update headers
+                qBadge.textContent = `Question ${current + 1}`;
+                qText.textContent = questions[current];
+                stepCounter.textContent = `${current + 1} / ${questions.length}`;
+                stepCounterSm.textContent = `${current + 1} / ${questions.length}`;
 
-                input.addEventListener('change', () => {
-                    answers[current] = opt.key;
-                    nextBtn.disabled = false;
+                const pct = Math.round(((current) / questions.length) * 100);
+                progressBar.style.width = pct + '%';
+                progressBar.setAttribute('aria-valuenow', pct);
+
+                form.innerHTML = '';
+
+                options.forEach((opt, idx) => {
+                    const id = `q${current}_opt${idx}`;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'col-12';
+
+                    const input = document.createElement('input');
+                    input.className = 'btn-check';
+                    input.type = 'radio';
+                    input.name = `q${current}`;
+                    input.id = id;
+                    input.value = opt.key;
+                    input.checked = answers[current] === opt.key;
+
+                    const label = document.createElement('label');
+                    label.className = `opt-label w-100 ${opt.cls}`;
+                    label.setAttribute('for', id);
+                    label.innerHTML = `
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="fw-black">${idx + 1}.</span>
+                            <span>${opt.label}</span>
+                        </div>
+                    `;
+
+                    input.addEventListener('change', () => {
+                        answers[current] = opt.key;
+                        nextBtn.disabled = false;
+                    });
+
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(label);
+                    form.appendChild(wrapper);
                 });
 
-                wrapper.appendChild(input);
-                wrapper.appendChild(label);
-                form.appendChild(wrapper);
-            });
+                prevBtn.disabled = current === 0;
+                nextBtn.textContent = current === questions.length - 1 ? 'Submit ▶' : 'Next ▶';
+                nextBtn.classList.toggle('btn-success', current === questions.length - 1);
+                nextBtn.disabled = answers[current] === null;
 
-            prevBtn.disabled = current === 0;
-            nextBtn.textContent = current === questions.length - 1 ? 'Submit ▶' : 'Next ▶';
-            nextBtn.classList.toggle('btn-success', current === questions.length - 1);
-            nextBtn.disabled = answers[current] === null;
+                // Fade in
+                cardBody.classList.remove('fade-enter');
+                cardBody.classList.add('fade-enter-active');
 
-            // Focus first available option for accessibility
-            const firstInput = form.querySelector('input.btn-check');
-            if (firstInput) firstInput.focus({ preventScroll: true });
+                setTimeout(() => {
+                    cardBody.classList.remove('fade-enter-active');
+                }, 350);
+
+            }, 100);
         }
 
         function computeScore() {
@@ -401,9 +482,25 @@
             if (current > 0) { current--; render(); }
         });
 
+        // nextBtn.addEventListener('click', () => {
+        //     if (current < questions.length - 1) {
+        //         current++;
+        //         render();
+        //     } else {
+        //         finishTest();
+        //     }
+        // });
+
         nextBtn.addEventListener('click', () => {
             if (current < questions.length - 1) {
                 current++;
+
+                // Smooth scroll to top of quiz card
+                document.querySelector('.quiz-card').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
                 render();
             } else {
                 finishTest();
