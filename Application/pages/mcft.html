@@ -60,6 +60,9 @@
             background: #fff;
             cursor: crosshair;
             touch-action: none;
+            width: 100%;
+            height: 300px;
+            max-width: 100%;
         }
 
         .sequence-btn {
@@ -203,7 +206,8 @@
 
                     <div class="col-md-7">
                         <h5 class="fw-bold mb-2">Copy the image here:</h5>
-                        <canvas id="drawingBoard" width="500" height="400"></canvas>
+                        <!-- <canvas id="drawingBoard" width="500" height="400"></canvas> -->
+                        <canvas id="drawingBoard"></canvas>
                         <div class="d-flex gap-2 mt-2">
                             <button class="btn btn-sm btn-outline-secondary" onclick="clearCanvas()">Clear
                                 Canvas</button>
@@ -249,7 +253,13 @@
             if (sun === 'east') orientScore++;
 
             // 2. Sequence (already tracked in logic, mocking result if skipped)
-            const seqScore = 4; // Mock perfect score for demo assumption
+            // const seqScore = 4;
+            let seqScore = 0;
+            for (let i = 0; i < sequence.length; i++) {
+                if (playerSeq[i] === sequence[i]) {
+                    seqScore++;
+                }
+            }
 
             // 3. Object Naming
             const o1 = (document.getElementById('obj1_name').value || '').toLowerCase();
@@ -337,29 +347,50 @@
             }, 500);
         }
 
+        // function handleSeqInput(color) {
+        //     if (!allowInput) return;
+
+        //     // Flash feedback
+        //     const btn = document.getElementById('btn-' + color);
+        //     btn.classList.add('active');
+        //     setTimeout(() => btn.classList.remove('active'), 200);
+
+        //     playerSeq.push(color);
+
+        //     // Check correctness so far
+        //     const currentIdx = playerSeq.length - 1;
+        //     if (playerSeq[currentIdx] !== sequence[currentIdx]) {
+        //         document.getElementById('seqStatus').innerText = "Incorrect! Try again.";
+        //         document.getElementById('startSeqBtn').disabled = false;
+        //         allowInput = false;
+        //         return;
+        //     }
+
+        //     if (playerSeq.length === sequence.length) {
+        //         document.getElementById('seqStatus').innerText = "Correct! Well done.";
+        //         document.getElementById('btnNext2').disabled = false;
+        //         allowInput = false;
+        //     }
+        // }
+
         function handleSeqInput(color) {
             if (!allowInput) return;
 
-            // Flash feedback
+            // Visual feedback only
             const btn = document.getElementById('btn-' + color);
             btn.classList.add('active');
             setTimeout(() => btn.classList.remove('active'), 200);
 
             playerSeq.push(color);
 
-            // Check correctness so far
-            const currentIdx = playerSeq.length - 1;
-            if (playerSeq[currentIdx] !== sequence[currentIdx]) {
-                document.getElementById('seqStatus').innerText = "Incorrect! Try again.";
-                document.getElementById('startSeqBtn').disabled = false;
-                allowInput = false;
-                return;
-            }
-
+            // If sequence completed, allow next step
             if (playerSeq.length === sequence.length) {
-                document.getElementById('seqStatus').innerText = "Correct! Well done.";
-                document.getElementById('btnNext2').disabled = false;
                 allowInput = false;
+
+                document.getElementById('seqStatus').innerText = 
+                    "Sequence recorded. You may proceed.";
+
+                document.getElementById('btnNext2').disabled = false;
             }
         }
 
@@ -370,6 +401,16 @@
         function initCanvas() {
             canvas = document.getElementById('drawingBoard');
             ctx = canvas.getContext('2d');
+
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            // canvas.width = rect.width;
+            // canvas.height = rect.height;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+
+            ctx.scale(dpr, dpr);
+
             ctx.strokeStyle = "#000";
             ctx.lineWidth = 3;
             ctx.lineCap = 'round';
@@ -381,15 +422,20 @@
             canvas.addEventListener('mouseout', endDraw);
 
             // Touch events
-            canvas.addEventListener('touchstart', (e) => {
-                const touch = e.touches[0];
-                const mouseEvent = new MouseEvent("mousedown", {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                canvas.dispatchEvent(mouseEvent);
-            });
+            // canvas.addEventListener('touchstart', (e) => {
+            //     const touch = e.touches[0];
+            //     const mouseEvent = new MouseEvent("mousedown", {
+            //         clientX: touch.clientX,
+            //         clientY: touch.clientY
+            //     });
+            //     canvas.dispatchEvent(mouseEvent);
+            // });
             // ... (simplified touch handling for demo)
+
+            // Modified Touch events
+            canvas.addEventListener('touchstart', startTouch, { passive: false });
+            canvas.addEventListener('touchmove', moveTouch, { passive: false });
+            canvas.addEventListener('touchend', endDraw);
         }
 
         function getPos(e) {
@@ -400,9 +446,31 @@
             };
         }
 
+        // function startDraw(e) {
+        //     drawing = true;
+        //     draw(e);
+        // }
+
+        // function draw(e) {
+        //     if (!drawing) return;
+        //     const pos = getPos(e);
+        //     ctx.lineTo(pos.x, pos.y);
+        //     ctx.stroke();
+        //     ctx.beginPath();
+        //     ctx.moveTo(pos.x, pos.y);
+        // }
+
+        // function endDraw() {
+        //     drawing = false;
+        //     ctx.beginPath();
+        // }
+
+        // Desktop Drawing
         function startDraw(e) {
             drawing = true;
-            draw(e);
+            ctx.beginPath();
+            const pos = getPos(e);
+            ctx.moveTo(pos.x, pos.y);
         }
 
         function draw(e) {
@@ -410,13 +478,24 @@
             const pos = getPos(e);
             ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
         }
 
         function endDraw() {
             drawing = false;
             ctx.beginPath();
+        }
+
+        // Mobile Drawing
+        function startTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startDraw(touch);
+        }
+
+        function moveTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            draw(touch);
         }
 
         function clearCanvas() {
