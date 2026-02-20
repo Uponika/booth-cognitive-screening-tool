@@ -100,11 +100,19 @@
                 <h3 class="mb-4">1. Orientation</h3>
                 <p class="text-muted mb-4">Please answer the following questions to the best of your ability.</p>
 
+                <!-- Season -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">Which season is it now?</label>
-                    <input type="text" class="form-control" id="q_season" placeholder="e.g. Summer, Winter...">
+                    <select class="form-select" id="q_season">
+                        <option value="">Select...</option>
+                        <option value="summer">Summer</option>
+                        <option value="autumn">Autumn</option>
+                        <option value="winter">Winter</option>
+                        <option value="spring">Spring</option>
+                    </select>
                 </div>
 
+                <!-- Time of Day -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">Is it morning, afternoon, or evening?</label>
                     <select class="form-select" id="q_time_day">
@@ -115,11 +123,18 @@
                     </select>
                 </div>
 
+                <!-- Month After July -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">What month comes after July?</label>
-                    <input type="text" class="form-control" id="q_month" placeholder="Enter month">
+                    <select class="form-select" id="q_month">
+                        <option value="">Select...</option>
+                        <option value="june">June</option>
+                        <option value="august">August</option>
+                        <option value="november">November</option>
+                    </select>
                 </div>
 
+                <!-- Sun Direction -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">From which direction does the sun rise?</label>
                     <select class="form-select" id="q_sun">
@@ -131,7 +146,9 @@
                     </select>
                 </div>
 
-                <button class="btn btn-primary mt-3" onclick="nextStep(2)">Next: Attention & Memory ▶</button>
+                <button class="btn btn-primary mt-3" onclick="nextStep(2)">
+                    Next: Attention & Memory ▶
+                </button>
             </div>
 
             <!-- Task 2: Sequence Game -->
